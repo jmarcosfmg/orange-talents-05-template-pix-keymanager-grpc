@@ -12,3 +12,5 @@ datasources:
 jpa.default.properties.hibernate.hbm2ddl.auto: update
 jpa.default.properties.hibernate.show_swl: true
 jpa.default.properties.hibernate.format_sql: true
+sistemaExternos:
+  contasItau: 'http://${ITAU_HOST:localhost}:${ITAU_PORT:9091}/api/v1/clientes'

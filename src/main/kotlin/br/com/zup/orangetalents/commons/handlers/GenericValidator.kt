@@ -1,4 +1,4 @@
-package br.com.zup.orangetalents.handlers
+package br.com.zup.orangetalents.commons.handlers
 
 import io.micronaut.core.annotation.Introspected
 import jakarta.inject.Inject

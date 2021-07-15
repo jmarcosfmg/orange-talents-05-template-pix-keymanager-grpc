@@ -1,7 +1,7 @@
 package br.com.zup.orangetalents.model
 
 import br.com.zup.orangetalents.TipoChaveGrpc
-import br.com.zup.orangetalents.handlers.ChaveFormatViolationException
+import br.com.zup.orangetalents.commons.exceptions.ChaveFormatViolationException
 import io.micronaut.core.annotation.Introspected
 import javax.validation.ConstraintViolationException
 
@@ -27,8 +27,10 @@ enum class TipoChave(private val regex: Regex, val tipoChaveGrpc: TipoChaveGrpc)
         }
     }
 
-    open fun isValid(str: String): Boolean {
-        return this.regex.matches(str)
+    open fun validate(str: String): Boolean {
+        if(!this.regex.matches(str))
+            throw ChaveFormatViolationException("Formato de chave inválido!")
+        return true
     }
 
 }

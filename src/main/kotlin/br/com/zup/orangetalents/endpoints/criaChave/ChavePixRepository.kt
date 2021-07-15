@@ -1,4 +1,4 @@
-package br.com.zup.orangetalents
+package br.com.zup.orangetalents.endpoints.criaChave
 
 import br.com.zup.orangetalents.model.ChavePix
 import br.com.zup.orangetalents.model.TipoChave

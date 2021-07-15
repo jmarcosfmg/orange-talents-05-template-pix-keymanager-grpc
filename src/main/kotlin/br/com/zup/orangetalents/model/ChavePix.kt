@@ -1,5 +1,7 @@
 package br.com.zup.orangetalents.model
 
+import br.com.zup.orangetalents.ChavePixRequest
+import br.com.zup.orangetalents.TipoChaveGrpc
 import java.util.*
 import javax.persistence.*
 import javax.validation.constraints.NotBlank
@@ -18,6 +20,19 @@ class ChavePix(
     val id: UUID = UUID.randomUUID()
     override fun toString(): String {
         return "ChavePix(idCliente='$idCliente', tipoChave=$tipoChave, tipoConta=$tipoConta, chave='$chave')"
+    }
+
+    companion object {
+        fun fromRequest(request: ChavePixRequest): ChavePix {
+            return request.let {
+                ChavePix(
+                    it.codigo,
+                    TipoChave.toModel(it.tipoChave),
+                    TipoConta.valueOf(it.tipoConta.name),
+                    if (it.tipoChave == TipoChaveGrpc.ALEATORIA) UUID.randomUUID().toString() else it.chave
+                )
+            }
+        }
     }
 }
 
