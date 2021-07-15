@@ -1,5 +1,6 @@
-package br.com.zup.orangetalents
+package br.com.zup.orangetalents.commons.external
 
+import br.com.zup.orangetalents.SistemaItauResponse
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.QueryValue
@@ -10,6 +11,6 @@ interface SistemaItau {
 
     @Get("/{clienteId}/contas")
     fun buscaDadosCliente(@PathVariable clienteId: String,
-                            @QueryValue tipo: String): SistemaItauResponse?
+                          @QueryValue tipo: String): SistemaItauResponse?
 
 }

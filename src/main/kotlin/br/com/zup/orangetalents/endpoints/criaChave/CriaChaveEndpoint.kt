@@ -1,8 +1,10 @@
 package br.com.zup.orangetalents.endpoints.criaChave
 
 import br.com.zup.orangetalents.*
+import br.com.zup.orangetalents.commons.external.SistemaItau
 import br.com.zup.orangetalents.commons.handlers.GenericValidator
 import br.com.zup.orangetalents.model.ChavePix
+import br.com.zup.orangetalents.repositories.ChavePixRepository
 import io.grpc.stub.StreamObserver
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
@@ -19,11 +21,9 @@ open class CriaChaveEndpoint(
     ChavePixServiceGrpc.ChavePixServiceImplBase() {
 
     override fun insere(request: ChavePixRequest, responseObserver: StreamObserver<ChavePixResponse>) {
-        val novaChave: ChavePix = ChavePix.fromRequest(request)
-        validator.validate(novaChave)
-        novaChave.tipoChave.validate(novaChave.chave)
-        sistemaItau.contaExists(request)
-        val chaveSalva = chavePixRepository.save(novaChave)
+        val chaveSalva: ChavePix = ChavePix.fromRequest(request).takeIf {
+                validator.validate(it) && it.tipoChave.validate(it.chave) && sistemaItau.contaExists(request)
+        }.let { chavePixRepository.save(it!!) }
         responseObserver.onNext(
             ChavePixResponse.newBuilder()
                 .setPixId(chaveSalva.id.toString())
