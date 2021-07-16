@@ -1,8 +1,8 @@
 package br.com.zup.orangetalents.commons.handlers
 
 import io.micronaut.core.annotation.Introspected
-import jakarta.inject.Inject
-import jakarta.inject.Singleton
+import javax.inject.Inject
+import javax.inject.Singleton
 import javax.validation.ConstraintViolationException
 import javax.validation.Validator
 

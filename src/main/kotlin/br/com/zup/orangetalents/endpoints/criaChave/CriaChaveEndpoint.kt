@@ -6,8 +6,8 @@ import br.com.zup.orangetalents.commons.handlers.GenericValidator
 import br.com.zup.orangetalents.model.ChavePix
 import br.com.zup.orangetalents.repositories.ChavePixRepository
 import io.grpc.stub.StreamObserver
-import jakarta.inject.Inject
-import jakarta.inject.Singleton
+import javax.inject.Inject
+import javax.inject.Singleton
 import javax.transaction.Transactional
 
 @Singleton

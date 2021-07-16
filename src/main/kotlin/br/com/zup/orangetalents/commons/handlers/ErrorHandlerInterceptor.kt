@@ -10,7 +10,7 @@ import io.micronaut.aop.Around
 import io.micronaut.aop.InterceptorBean
 import io.micronaut.aop.MethodInterceptor
 import io.micronaut.aop.MethodInvocationContext
-import jakarta.inject.Singleton
+import javax.inject.Singleton
 import javax.validation.ConstraintViolationException
 import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.annotation.AnnotationTarget.*
