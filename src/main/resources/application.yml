@@ -3,7 +3,7 @@ micronaut:
     name: keyManagerGrpc
 datasources:
   default:
-    url: 'jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/pixservice'
+    url: 'jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/pixservice?useTimezone=true&serverTimezone=UTC'
     driverClassName: com.mysql.cj.jdbc.Driver
     username: root
     password: 'Adm!n1str@d0r'
