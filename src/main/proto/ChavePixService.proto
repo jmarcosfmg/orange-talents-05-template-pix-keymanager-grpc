@@ -6,8 +6,12 @@ option java_outer_classname = "Cliente";
 
 package br.com.zup.orangetalents;
 
-service ChavePixService {
+service InsereChavePixService {
   rpc insere(ChavePixRequest) returns (ChavePixResponse){}
+}
+
+service RemoveChavePixService{
+  rpc remove(RemoveChavePixRequest) returns (RemoveChavePixResponse){}
 }
 
 enum TipoContaGrpc {
@@ -32,4 +36,12 @@ message ChavePixRequest{
 
 message ChavePixResponse{
   string pixId = 1;
+}
+
+message RemoveChavePixRequest{
+  string pixId = 1;
+  string clientId = 2;
+}
+
+message RemoveChavePixResponse{
 }

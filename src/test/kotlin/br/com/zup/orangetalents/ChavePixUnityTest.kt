@@ -14,7 +14,7 @@ import org.junit.jupiter.api.assertThrows
 @MicronautTest(transactional = false)
 internal class ChavePixUnityTest(
     val chavePixRepository: ChavePixRepository,
-    val grpcClient: ChavePixServiceGrpc.ChavePixServiceBlockingStub
+    val grpcClient: InsereChavePixServiceGrpc.InsereChavePixServiceBlockingStub
 ) {
 
     @AfterEach

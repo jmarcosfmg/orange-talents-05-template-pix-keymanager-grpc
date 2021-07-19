@@ -1,6 +1,7 @@
 package br.com.zup.orangetalents
 
 import br.com.zup.orangetalents.commons.external.SistemaItau
+import br.com.zup.orangetalents.commons.external.SistemaItauInstituicao
 import br.com.zup.orangetalents.model.ChavePix
 import br.com.zup.orangetalents.model.TipoChave
 import br.com.zup.orangetalents.model.TipoConta
@@ -27,22 +28,29 @@ import javax.inject.Inject
 @MicronautTest(transactional = false)
 internal class CriaChaveEndpointTest(
     val repository: ChavePixRepository,
-    val grpcClient: ChavePixServiceGrpc.ChavePixServiceBlockingStub
+    val grpcClient: InsereChavePixServiceGrpc.InsereChavePixServiceBlockingStub
 ) {
 
     @Inject
     lateinit var itauCliente: SistemaItau
 
+    var chaveDefault: ChavePix = ChavePix(
+        idCliente = "5260263c-a3c1-4727-ae32-3bdb2538841b",
+        tipoChave = TipoChave.EMAIL,
+        tipoConta = TipoConta.POUPANCA,
+        chave = "teste@teste.com"
+    )
+
+    var requestDefault: ChavePixRequest = ChavePixRequest.newBuilder()
+        .setCodigo("5260263c-a3c1-4727-ae32-3bdb2538841b")
+        .setChave("teste@teste.com")
+        .setTipoChave(TipoChaveGrpc.EMAIL)
+        .setTipoConta(TipoContaGrpc.POUPANCA)
+        .build()
+
     @BeforeEach
     fun setUp() {
-        repository.save(
-            ChavePix(
-                "5260263c-a3c1-4727-ae32-3bdb2538841b",
-                TipoChave.EMAIL,
-                tipoConta = TipoConta.POUPANCA,
-                "teste@teste.com"
-            )
-        )
+        repository.save(chaveDefault)
     }
 
     @AfterEach
@@ -52,7 +60,7 @@ internal class CriaChaveEndpointTest(
 
     @Test
     fun `deve registrar a chave`() {
-        Mockito.`when`(itauCliente.buscaDadosCliente(DadosDaContaRequest.clienteId, DadosDaContaRequest.tipo))
+        Mockito.`when`(itauCliente.buscaPorClienteETipoConta(DadosDaContaRequest.clienteId, DadosDaContaRequest.tipo))
             .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
         val response = grpcClient.insere(
             ChavePixRequest.newBuilder()
@@ -99,7 +107,7 @@ internal class CriaChaveEndpointTest(
 
     @Test
     fun `nao deve permitir conta inexistente`() {
-        Mockito.`when`(itauCliente.buscaDadosCliente("asdfasdafsdaas", "CONTA_CORRENTE"))
+        Mockito.`when`(itauCliente.buscaPorClienteETipoConta("asdfasdafsdaas", "CONTA_CORRENTE"))
             .thenReturn(HttpResponse.serverError())
         val thrown = assertThrows<StatusRuntimeException> {
             grpcClient.insere(
@@ -119,12 +127,12 @@ internal class CriaChaveEndpointTest(
     @Test
     fun `nao deve permitir chave duplicada`() {
         val request = ChavePixRequest.newBuilder()
-            .setCodigo("5260263c-a3c1-4727-ae32-3bdb2538841b")
-            .setChave("teste@teste.com")
+            .setCodigo(chaveDefault.idCliente)
+            .setChave(chaveDefault.chave)
             .setTipoChave(TipoChaveGrpc.EMAIL)
             .setTipoConta(TipoContaGrpc.POUPANCA)
             .build()
-        Mockito.`when`(itauCliente.buscaDadosCliente(request.codigo, "CONTA_POUPANCA"))
+        Mockito.`when`(itauCliente.buscaPorClienteETipoConta(request.codigo, "CONTA_POUPANCA"))
             .thenReturn(HttpResponse.ok())
         val thrown = assertThrows<StatusRuntimeException> {
             grpcClient.insere(request)
@@ -137,8 +145,9 @@ internal class CriaChaveEndpointTest(
     @Factory
     class ItauClient {
         @Bean
-        fun blockingStub(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel): ChavePixServiceGrpc.ChavePixServiceBlockingStub {
-            return ChavePixServiceGrpc.newBlockingStub(channel)
+        fun blockingStub(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel):
+                InsereChavePixServiceGrpc.InsereChavePixServiceBlockingStub {
+            return InsereChavePixServiceGrpc.newBlockingStub(channel)
         }
     }
 
@@ -154,8 +163,8 @@ internal class CriaChaveEndpointTest(
         }
     }
 
-    private fun dadosDaContaResponse(): SistemaItauResponse {
-        return SistemaItauResponse(
+    private fun dadosDaContaResponse(): ClienteETipoContaResponse {
+        return ClienteETipoContaResponse(
             tipo = "CONTA_CORRENTE",
             instituicao = SistemaItauInstituicao(nome = "ITAÚ UNIBANCO S.A.", ispb = "60701190"),
             agencia = "0001",

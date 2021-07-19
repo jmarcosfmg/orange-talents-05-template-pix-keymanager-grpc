@@ -1,6 +1,5 @@
 package br.com.zup.orangetalents.endpoints.criaChave
 
-import br.com.zup.orangetalents.ChavePixRequest
 import br.com.zup.orangetalents.commons.exceptions.ChaveExistsViolationException
 import br.com.zup.orangetalents.commons.exceptions.ContaNotFoundViolationException
 import br.com.zup.orangetalents.commons.exceptions.ServerCommunicationException
@@ -12,9 +11,9 @@ import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.exceptions.HttpStatusException
 
 
-fun SistemaItau.contaExists(request: ChavePixRequest): Boolean {
+fun SistemaItau.contaExists(cliente: String, tipoConta: String): Boolean {
     try {
-        val response = this.buscaDadosCliente(request.codigo, "CONTA_${request.tipoConta.name}")
+        val response = this.buscaPorClienteETipoConta(cliente, "CONTA_${tipoConta}")
             .takeIf { it.status.code != HttpStatus.INTERNAL_SERVER_ERROR.code }
             ?: throw ContaNotFoundViolationException(
                 HttpStatusException(HttpStatus.BAD_REQUEST, null)

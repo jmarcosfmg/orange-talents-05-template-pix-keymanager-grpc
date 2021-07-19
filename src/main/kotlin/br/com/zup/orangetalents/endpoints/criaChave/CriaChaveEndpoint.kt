@@ -17,12 +17,14 @@ open class CriaChaveEndpoint(
     @Inject val validator: GenericValidator,
     @Inject val sistemaItau: SistemaItau,
     @Inject val chavePixRepository: ChavePixRepository
-) :
-    ChavePixServiceGrpc.ChavePixServiceImplBase() {
+) : InsereChavePixServiceGrpc.InsereChavePixServiceImplBase(){
 
     override fun insere(request: ChavePixRequest, responseObserver: StreamObserver<ChavePixResponse>) {
         val chaveSalva: ChavePix = ChavePix.fromRequest(request).takeIf {
-                validator.validate(it) && it.tipoChave.validate(it.chave) && sistemaItau.contaExists(request)
+            validator.validate(it) && it.tipoChave.validate(it.chave) && sistemaItau.contaExists(
+                request.codigo,
+                request.tipoConta.name
+            )
         }.let { chavePixRepository.insertIfNotExists(it!!) }
         responseObserver.onNext(
             ChavePixResponse.newBuilder()

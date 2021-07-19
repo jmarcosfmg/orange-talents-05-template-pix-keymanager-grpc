@@ -1,9 +1,6 @@
 package br.com.zup.orangetalents
 
-import br.com.zup.orangetalents.commons.exceptions.ChaveExistsViolationException
-import br.com.zup.orangetalents.commons.exceptions.ChaveFormatViolationException
-import br.com.zup.orangetalents.commons.exceptions.ContaNotFoundViolationException
-import br.com.zup.orangetalents.commons.exceptions.ServerCommunicationException
+import br.com.zup.orangetalents.commons.exceptions.*
 import io.grpc.Status
 import io.grpc.stub.StreamObserver
 import io.micronaut.aop.Around
@@ -35,6 +32,15 @@ class ErrorHandlerInterceptor : MethodInterceptor<Any, Any> {
                 is ChaveFormatViolationException -> Status.INVALID_ARGUMENT
                     .withDescription(ex.message)
                 is ChaveExistsViolationException -> Status.ALREADY_EXISTS
+                    .withDescription(ex.message)
+                is ChaveNotFoundViolationException -> Status.NOT_FOUND
+                    .withCause(ex)
+                    .withDescription(ex.message)
+                is ClienteNotFoundViolationException -> Status.ALREADY_EXISTS
+                    .withCause(ex)
+                    .withDescription(ex.message)
+                is UnauthorizedViolationException -> Status.PERMISSION_DENIED
+                    .withCause(ex)
                     .withDescription(ex.message)
                 is ContaNotFoundViolationException -> Status.NOT_FOUND
                     .withDescription(ex.message)
