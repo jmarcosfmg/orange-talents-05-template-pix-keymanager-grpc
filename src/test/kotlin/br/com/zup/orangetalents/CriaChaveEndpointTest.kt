@@ -116,6 +116,24 @@ internal class CriaChaveEndpointTest(
         }
     }
 
+    @Test
+    fun `nao deve permitir chave duplicada`() {
+        val request = ChavePixRequest.newBuilder()
+            .setCodigo("5260263c-a3c1-4727-ae32-3bdb2538841b")
+            .setChave("teste@teste.com")
+            .setTipoChave(TipoChaveGrpc.EMAIL)
+            .setTipoConta(TipoContaGrpc.POUPANCA)
+            .build()
+        Mockito.`when`(itauCliente.buscaDadosCliente(request.codigo, "CONTA_POUPANCA"))
+            .thenReturn(HttpResponse.ok())
+        val thrown = assertThrows<StatusRuntimeException> {
+            grpcClient.insere(request)
+        }
+        with(thrown) {
+            assertEquals(Status.ALREADY_EXISTS.code, status.code)
+        }
+    }
+
     @Factory
     class ItauClient {
         @Bean

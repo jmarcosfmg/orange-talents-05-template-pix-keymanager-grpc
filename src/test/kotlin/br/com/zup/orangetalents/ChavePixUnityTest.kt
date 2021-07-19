@@ -6,9 +6,11 @@ import io.grpc.StatusRuntimeException
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
+@Nested
 @MicronautTest(transactional = false)
 internal class ChavePixUnityTest(
     val chavePixRepository: ChavePixRepository,

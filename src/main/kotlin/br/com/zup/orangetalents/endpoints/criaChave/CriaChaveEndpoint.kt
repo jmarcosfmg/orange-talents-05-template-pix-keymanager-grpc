@@ -23,7 +23,7 @@ open class CriaChaveEndpoint(
     override fun insere(request: ChavePixRequest, responseObserver: StreamObserver<ChavePixResponse>) {
         val chaveSalva: ChavePix = ChavePix.fromRequest(request).takeIf {
                 validator.validate(it) && it.tipoChave.validate(it.chave) && sistemaItau.contaExists(request)
-        }.let { chavePixRepository.save(it!!) }
+        }.let { chavePixRepository.insertIfNotExists(it!!) }
         responseObserver.onNext(
             ChavePixResponse.newBuilder()
                 .setPixId(chaveSalva.id.toString())
