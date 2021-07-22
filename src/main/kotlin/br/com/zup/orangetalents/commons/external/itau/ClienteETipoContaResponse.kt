@@ -1,6 +1,6 @@
 package br.com.zup.orangetalents
 
-import br.com.zup.orangetalents.commons.external.SistemaItauInstituicao
+import br.com.zup.orangetalents.commons.external.itau.SistemaItauInstituicao
 
 data class ClienteETipoContaResponse(
     val tipo: String,

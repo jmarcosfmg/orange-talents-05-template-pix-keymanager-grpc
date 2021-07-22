@@ -1,12 +1,16 @@
 package br.com.zup.orangetalents
 
-import br.com.zup.orangetalents.commons.external.ClienteResponse
-import br.com.zup.orangetalents.commons.external.SistemaItau
-import br.com.zup.orangetalents.commons.external.SistemaItauInstituicao
+import br.com.zup.orangetalents.commons.external.bcb.RemoveChaveBCBOkResponse
+import br.com.zup.orangetalents.commons.external.bcb.RemoveChaveBCBRequest
+import br.com.zup.orangetalents.commons.external.bcb.SistemaBCB
+import br.com.zup.orangetalents.commons.external.itau.ClienteResponse
+import br.com.zup.orangetalents.commons.external.itau.SistemaItau
+import br.com.zup.orangetalents.commons.external.itau.SistemaItauInstituicao
 import br.com.zup.orangetalents.model.ChavePix
 import br.com.zup.orangetalents.model.TipoChave
 import br.com.zup.orangetalents.model.TipoConta
 import br.com.zup.orangetalents.repositories.ChavePixRepository
+import com.google.type.DateTime
 import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
@@ -22,13 +26,17 @@ import org.mockito.Mockito
 import java.util.*
 import javax.inject.Inject
 
+@Nested
 @MicronautTest(transactional = false)
-class RemoveChaveEndpointTest(
-    val repository: ChavePixRepository,
-    val grpcClient: RemoveChavePixServiceGrpc.RemoveChavePixServiceBlockingStub
+internal class RemoveChaveEndpointTest(
+    @Inject val repository: ChavePixRepository,
+    @Inject val removeChaveClient: RemoveChavePixServiceGrpc.RemoveChavePixServiceBlockingStub
 ) {
     @Inject
     lateinit var itauCliente: SistemaItau
+
+    @Inject
+    lateinit var bcbCliente: SistemaBCB
 
     var chaveDefault: ChavePix = ChavePix(
         idCliente = "5260263c-a3c1-4727-ae32-3bdb2538841b",
@@ -65,7 +73,23 @@ class RemoveChaveEndpointTest(
                 )
             )
         )
-        val response = grpcClient.remove(
+
+        Mockito.`when`(
+            bcbCliente.removeChave(
+                key = chaveDefault.chave,
+                removeChaveBCBRequest = RemoveChaveBCBRequest(key = chaveDefault.chave)
+            )
+        ).thenReturn(
+            HttpResponse.ok(
+                RemoveChaveBCBOkResponse(
+                    key = chaveDefault.chave,
+                    participant = "60701190",
+                    deletedAt = DateTime.getDefaultInstance()
+                )
+            )
+        )
+
+        val response = removeChaveClient.remove(
             RemoveChavePixRequest.newBuilder()
                 .setClientId(chaveDefault.idCliente)
                 .setPixId(pixId.toString()).build()
@@ -78,7 +102,7 @@ class RemoveChaveEndpointTest(
             itauCliente.buscaPorCliente(DadosDaContaRequest.clienteId)
         ).thenReturn(HttpResponse.ok(dadosDaContaResponse()))
         val thrown = assertThrows<StatusRuntimeException> {
-            grpcClient.remove(
+            removeChaveClient.remove(
                 RemoveChavePixRequest.newBuilder()
                     .setClientId(DadosDaContaRequest.clienteId)
                     .setPixId(UUID.randomUUID().toString()).build()
@@ -94,7 +118,7 @@ class RemoveChaveEndpointTest(
         Mockito.`when`(itauCliente.buscaPorCliente(DadosDaContaRequest.clienteId))
             .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
         val thrown = assertThrows<StatusRuntimeException> {
-            grpcClient.remove(
+            removeChaveClient.remove(
                 RemoveChavePixRequest.newBuilder()
                     .setClientId(dadosDaContaResponse().id)
                     .setPixId(pixId.toString()).build()
@@ -106,9 +130,10 @@ class RemoveChaveEndpointTest(
     }
 
     @Factory
-    class ItauClient {
+    class GrpcClient {
         @Bean
-        fun blockingStub(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel): RemoveChavePixServiceGrpc.RemoveChavePixServiceBlockingStub {
+        fun blockingStub(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel):
+                RemoveChavePixServiceGrpc.RemoveChavePixServiceBlockingStub {
             return RemoveChavePixServiceGrpc.newBlockingStub(channel)
         }
     }
@@ -116,6 +141,11 @@ class RemoveChaveEndpointTest(
     @MockBean(SistemaItau::class)
     fun sistemaItau(): SistemaItau? {
         return Mockito.mock(SistemaItau::class.java)
+    }
+
+    @MockBean(SistemaBCB::class)
+    fun sistemaBCB(): SistemaBCB? {
+        return Mockito.mock(SistemaBCB::class.java)
     }
 
     private class DadosDaContaRequest() {

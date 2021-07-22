@@ -1,4 +1,4 @@
-package br.com.zup.orangetalents.commons.external
+package br.com.zup.orangetalents.commons.external.itau
 
 data class SistemaItauInstituicao(
     val nome: String,

@@ -13,11 +13,12 @@ class ChavePix(
     @field:NotBlank val idCliente: String,
     @field:NotNull @field:Enumerated(EnumType.STRING) @Column(columnDefinition = "VARCHAR(11)") val tipoChave: TipoChave,
     @field:NotNull @field:Enumerated(EnumType.STRING) @Column(columnDefinition = "VARCHAR(11)") val tipoConta: TipoConta,
-    @field:NotBlank @field:Size(max = 70) val chave: String
+    @field:NotBlank @field:Size(max = 70) var chave: String
 ) {
 
     @Id
     val id: UUID = UUID.randomUUID()
+
     override fun toString(): String {
         return "ChavePix(idCliente='$idCliente', tipoChave=$tipoChave, tipoConta=$tipoConta, chave='$chave')"
     }
@@ -27,7 +28,7 @@ class ChavePix(
             return request.let {
                 ChavePix(
                     it.codigo,
-                    TipoChave.toModel(it.tipoChave),
+                    TipoChave.fromTipoChaveGrpc(it.tipoChave),
                     TipoConta.valueOf(it.tipoConta.name),
                     if (it.tipoChave == TipoChaveGrpc.ALEATORIA) UUID.randomUUID().toString() else it.chave
                 )

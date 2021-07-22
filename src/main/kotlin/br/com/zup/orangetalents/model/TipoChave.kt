@@ -18,7 +18,7 @@ enum class TipoChave(private val regex: Regex, val tipoChaveGrpc: TipoChaveGrpc)
 
     companion object {
         @Throws(ConstraintViolationException::class)
-        fun toModel(chaveGrpc: TipoChaveGrpc): TipoChave {
+        fun fromTipoChaveGrpc(chaveGrpc: TipoChaveGrpc): TipoChave {
             for (tipoChave in values()) {
                 if (chaveGrpc.name.equals(tipoChave.tipoChaveGrpc.name, true))
                     return tipoChave
