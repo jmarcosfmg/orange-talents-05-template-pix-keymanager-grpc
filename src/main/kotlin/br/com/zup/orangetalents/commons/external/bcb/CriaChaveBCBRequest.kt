@@ -15,11 +15,9 @@ data class CriaChaveBCBRequest(
     val ownerRequest: BCBOwnerRequest
 )
 
-data class BCBOwnerRequest(
-    val name: String,
-    val taxIdNumber: String
-){
+data class BCBOwnerRequest(val name: String, val taxIdNumber: String) {
     val type: String = "NATURAL_PERSON"
+
     constructor(cliente: ClienteETipoContaResponse) : this(
         name = cliente.titular.nome,
         taxIdNumber = cliente.titular.cpf

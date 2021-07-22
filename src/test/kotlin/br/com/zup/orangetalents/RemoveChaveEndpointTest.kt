@@ -45,6 +45,13 @@ internal class RemoveChaveEndpointTest(
         chave = "teste@teste.com"
     )
 
+    val clienteResponse = ClienteResponse(
+        instituicao = SistemaItauInstituicao(nome = "ITAÚ UNIBANCO S.A.", ispb = "60701190"),
+        id = "5260263c-a3c1-4727-ae32-3bdb2538841b",
+        nome = "Yuri Matheus",
+        cpf = "86135457004"
+    )
+
     lateinit var pixId: UUID
 
     @BeforeEach
@@ -64,14 +71,7 @@ internal class RemoveChaveEndpointTest(
                 chaveDefault.idCliente
             )
         ).thenReturn(
-            HttpResponse.ok(
-                ClienteResponse(
-                    instituicao = SistemaItauInstituicao(nome = "ITAÚ UNIBANCO S.A.", ispb = "60701190"),
-                    id = "5260263c-a3c1-4727-ae32-3bdb2538841b",
-                    nome = "Yuri Matheus",
-                    cpf = "86135457004"
-                )
-            )
+            HttpResponse.ok(clienteResponse)
         )
 
         Mockito.`when`(
@@ -94,6 +94,8 @@ internal class RemoveChaveEndpointTest(
                 .setClientId(chaveDefault.idCliente)
                 .setPixId(pixId.toString()).build()
         )
+
+        Assertions.assertFalse(repository.existsById(pixId))
     }
 
     @Test
@@ -126,6 +128,28 @@ internal class RemoveChaveEndpointTest(
         }
         with(thrown) {
             Assertions.assertEquals(Status.PERMISSION_DENIED.code, thrown.status.code)
+            Assertions.assertTrue(repository.existsById(pixId))
+        }
+    }
+
+    @Test
+    fun `nao deve remover se chave nao existir no bcb`() {
+
+        val removeChaveBCBRequest = RemoveChaveBCBRequest(chaveDefault.chave)
+
+        Mockito.`when`(itauCliente.buscaPorCliente(chaveDefault.idCliente))
+            .thenReturn(HttpResponse.ok(clienteResponse))
+        Mockito.`when`(bcbCliente.removeChave(chaveDefault.chave, removeChaveBCBRequest))
+            .thenReturn(HttpResponse.notFound())
+        val thrown = assertThrows<StatusRuntimeException> {
+            removeChaveClient.remove(
+                RemoveChavePixRequest.newBuilder()
+                    .setClientId(chaveDefault.idCliente)
+                    .setPixId(pixId.toString()).build()
+            )
+        }
+        with(thrown) {
+            Assertions.assertEquals(Status.NOT_FOUND.code, thrown.status.code)
         }
     }
 
