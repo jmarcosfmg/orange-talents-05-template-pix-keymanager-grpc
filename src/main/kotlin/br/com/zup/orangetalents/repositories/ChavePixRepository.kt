@@ -1,6 +1,7 @@
 package br.com.zup.orangetalents.repositories
 
 import br.com.zup.orangetalents.commons.exceptions.ChaveExistsViolationException
+import br.com.zup.orangetalents.commons.handlers.ValidUUID
 import br.com.zup.orangetalents.model.ChavePix
 import br.com.zup.orangetalents.model.TipoChave
 import io.micronaut.data.annotation.Query
@@ -15,6 +16,8 @@ interface ChavePixRepository : CrudRepository<ChavePix, UUID> {
     fun buscaPorChaveETipo(chave : String, tipoChave : TipoChave): List<Int>
 
     fun findByChave(chave: String) : Optional<ChavePix>
+
+    fun findAllByIdCliente(@ValidUUID idCliente: String) : List<ChavePix>
 }
 
 fun ChavePixRepository.insertIfNotExists(chave: ChavePix): ChavePix {

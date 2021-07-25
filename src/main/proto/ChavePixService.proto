@@ -20,6 +20,10 @@ service ConsultaChavePixService{
   rpc consulta(ConsultaChavePixRequest) returns (ConsultaChavePixResponse){}
 }
 
+service ListaChavePixService{
+  rpc lista(ListaChavePixRequest) returns (ListaChavePixResponse){}
+}
+
 enum TipoContaGrpc {
   TIPOCONTADESCONHECIDA = 0;
   CORRENTE = 1;
@@ -86,4 +90,22 @@ message ConsultaChavePixResponse {
   string clienteId = 1;
   string pixId     = 2;
   ChavePix chave   = 3;
+}
+
+message ListaChavePixRequest{
+  string clienteId = 1;
+}
+
+message ListaChavePixResponse{
+
+  message Chave{
+    string id = 1;
+    string clienteId = 2;
+    TipoChaveGrpc tipoChave = 3;
+    string chave = 4;
+    TipoContaGrpc tipoConta = 5;
+    google.protobuf.Timestamp criadaEm = 6;
+  }
+
+  repeated Chave chaves = 1;
 }
