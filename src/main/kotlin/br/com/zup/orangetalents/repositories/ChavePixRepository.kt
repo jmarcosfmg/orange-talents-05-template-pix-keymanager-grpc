@@ -13,6 +13,8 @@ interface ChavePixRepository : CrudRepository<ChavePix, UUID> {
 
     @Query(value = "SELECT 1 FROM ChavePix p WHERE (p.chave = :chave) AND (p.tipoChave = :tipoChave)")
     fun buscaPorChaveETipo(chave : String, tipoChave : TipoChave): List<Int>
+
+    fun findByChave(chave: String) : Optional<ChavePix>
 }
 
 fun ChavePixRepository.insertIfNotExists(chave: ChavePix): ChavePix {

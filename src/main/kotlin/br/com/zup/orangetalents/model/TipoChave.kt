@@ -1,9 +1,11 @@
 package br.com.zup.orangetalents.model
 
 import br.com.zup.orangetalents.TipoChaveGrpc
+import br.com.zup.orangetalents.TipoContaGrpc
 import br.com.zup.orangetalents.commons.exceptions.ChaveFormatViolationException
 import io.micronaut.core.annotation.Introspected
 import javax.validation.ConstraintViolationException
+import javax.validation.constraints.NotBlank
 
 @Introspected
 enum class TipoChave(private val regex: Regex, val tipoChaveGrpc: TipoChaveGrpc) {
@@ -16,6 +18,14 @@ enum class TipoChave(private val regex: Regex, val tipoChaveGrpc: TipoChaveGrpc)
     ),
     ALEATORIA(Regex(".*"), TipoChaveGrpc.ALEATORIA);
 
+
+    fun toTipoGrpc(): TipoChaveGrpc {
+        return (TipoChaveGrpc.values().firstOrNull {
+            it == this.tipoChaveGrpc
+        }) ?:
+        throw RuntimeException("Tipo de chave não existe no sistema")
+    }
+
     companion object {
         @Throws(ConstraintViolationException::class)
         fun fromTipoChaveGrpc(chaveGrpc: TipoChaveGrpc): TipoChave {
@@ -27,7 +37,7 @@ enum class TipoChave(private val regex: Regex, val tipoChaveGrpc: TipoChaveGrpc)
         }
     }
 
-    open fun validate(str: String): Boolean {
+    open fun validate(@NotBlank str: String): Boolean {
         if(!this.regex.matches(str))
             throw ChaveFormatViolationException("Formato de chave inválido!")
         return true

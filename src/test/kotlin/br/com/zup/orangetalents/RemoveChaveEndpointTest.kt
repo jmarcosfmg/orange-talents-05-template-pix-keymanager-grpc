@@ -10,7 +10,6 @@ import br.com.zup.orangetalents.model.ChavePix
 import br.com.zup.orangetalents.model.TipoChave
 import br.com.zup.orangetalents.model.TipoConta
 import br.com.zup.orangetalents.repositories.ChavePixRepository
-import com.google.type.DateTime
 import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
@@ -23,6 +22,7 @@ import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.*
 import org.mockito.Mockito
+import java.time.LocalDateTime
 import java.util.*
 import javax.inject.Inject
 
@@ -67,7 +67,7 @@ internal class RemoveChaveEndpointTest(
     @Test
     fun `deve remover chave`() {
         Mockito.`when`(
-            itauCliente.buscaPorCliente(
+            itauCliente.buscaCliente(
                 chaveDefault.idCliente
             )
         ).thenReturn(
@@ -84,7 +84,7 @@ internal class RemoveChaveEndpointTest(
                 RemoveChaveBCBOkResponse(
                     key = chaveDefault.chave,
                     participant = "60701190",
-                    deletedAt = DateTime.getDefaultInstance()
+                    deletedAt = LocalDateTime.now()
                 )
             )
         )
@@ -101,7 +101,7 @@ internal class RemoveChaveEndpointTest(
     @Test
     fun `nao deve remover chave inexistente`() {
         Mockito.`when`(
-            itauCliente.buscaPorCliente(DadosDaContaRequest.clienteId)
+            itauCliente.buscaCliente(DadosDaContaRequest.clienteId)
         ).thenReturn(HttpResponse.ok(dadosDaContaResponse()))
         val thrown = assertThrows<StatusRuntimeException> {
             removeChaveClient.remove(
@@ -117,7 +117,7 @@ internal class RemoveChaveEndpointTest(
 
     @Test
     fun `nao deve remover chave de outra pessoa`() {
-        Mockito.`when`(itauCliente.buscaPorCliente(DadosDaContaRequest.clienteId))
+        Mockito.`when`(itauCliente.buscaCliente(DadosDaContaRequest.clienteId))
             .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
         val thrown = assertThrows<StatusRuntimeException> {
             removeChaveClient.remove(
@@ -137,7 +137,7 @@ internal class RemoveChaveEndpointTest(
 
         val removeChaveBCBRequest = RemoveChaveBCBRequest(chaveDefault.chave)
 
-        Mockito.`when`(itauCliente.buscaPorCliente(chaveDefault.idCliente))
+        Mockito.`when`(itauCliente.buscaCliente(chaveDefault.idCliente))
             .thenReturn(HttpResponse.ok(clienteResponse))
         Mockito.`when`(bcbCliente.removeChave(chaveDefault.chave, removeChaveBCBRequest))
             .thenReturn(HttpResponse.notFound())

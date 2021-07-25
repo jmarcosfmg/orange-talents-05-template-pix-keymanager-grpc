@@ -50,7 +50,6 @@ enum class BCBAccountType(val tipoConta: TipoConta) {
     }
 }
 
-
 enum class BCBKeyType(val tipoChave: TipoChave) {
     CPF(TipoChave.CPF),
     CNPJ(TipoChave.CPF),

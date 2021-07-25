@@ -7,7 +7,6 @@ import br.com.zup.orangetalents.model.ChavePix
 import br.com.zup.orangetalents.model.TipoChave
 import br.com.zup.orangetalents.model.TipoConta
 import br.com.zup.orangetalents.repositories.ChavePixRepository
-import com.google.type.DateTime
 import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
@@ -22,6 +21,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.mockito.Mockito
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @Nested
@@ -57,7 +57,7 @@ internal class CriaChaveEndpointTest(
         )
     )
 
-    var bcbResponseDefault = CriaChaveBCBResponse(
+    var bcbResponseDefault = DetalhesChaveBCBResponse(
         keyType = BCBKeyType.EMAIL.name,
         key = "teste@teste.com",
         bankAccount = BCBBankAccountResponse(
@@ -71,7 +71,7 @@ internal class CriaChaveEndpointTest(
             name = "Yuri Matheus",
             taxIdNumber = "86135457004"
         ),
-        createdAt = DateTime.getDefaultInstance()
+        createdAt = LocalDateTime.now()
     )
 
     @BeforeEach
@@ -91,7 +91,8 @@ internal class CriaChaveEndpointTest(
             tipo = "CONTA_CORRENTE",
             instituicao = SistemaItauInstituicao(
                 nome = "ITAÚ UNIBANCO S.A.",
-                ispb = "60701190"),
+                ispb = "60701190"
+            ),
             agencia = "0001",
             numero = "291900",
             titular = SistemaItauTitular(
@@ -101,7 +102,7 @@ internal class CriaChaveEndpointTest(
             )
         )
 
-        val novaChaveBCBResponse = CriaChaveBCBResponse(
+        val novaChaveBCBResponse = DetalhesChaveBCBResponse(
             keyType = BCBKeyType.EMAIL.name,
             key = "teste2@teste.com",
             bankAccount = BCBBankAccountResponse(
@@ -115,7 +116,7 @@ internal class CriaChaveEndpointTest(
                 name = "Rafael M C Ponte",
                 taxIdNumber = "86135457004"
             ),
-            createdAt = DateTime.getDefaultInstance()
+            createdAt = LocalDateTime.now()
         )
 
         val novaChaveBCBRequest = CriaChaveBCBRequest(
@@ -215,6 +216,35 @@ internal class CriaChaveEndpointTest(
         with(thrown) {
             println(status.description)
             assertEquals(Status.ALREADY_EXISTS.code, status.code)
+        }
+    }
+
+    @Test
+    fun `deve retornar erro se o cliente nao for encontrado`(){
+
+        repository.deleteAll()
+        Mockito.`when`(
+            itauCliente
+                .buscaContaCliente(
+                    chaveDefault.idCliente,
+                    "CONTA_${chaveDefault.tipoConta}"
+                )
+        )
+            .thenReturn(HttpResponse.notFound())
+
+        val thrown = assertThrows<StatusRuntimeException> {
+            InsereChaveClient.insere(
+                ChavePixRequest.newBuilder()
+                    .setCodigo(chaveDefault.idCliente)
+                    .setChave(chaveDefault.chave)
+                    .setTipoChave(TipoChaveGrpc.EMAIL)
+                    .setTipoConta(TipoContaGrpc.POUPANCA)
+                    .build()
+            )
+        }
+        with(thrown) {
+            assertEquals(Status.NOT_FOUND.code, status.code)
+            assertEquals(0L, repository.count())
         }
     }
 

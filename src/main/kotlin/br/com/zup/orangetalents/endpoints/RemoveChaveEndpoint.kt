@@ -8,6 +8,7 @@ import br.com.zup.orangetalents.commons.exceptions.ChaveNotFoundViolationExcepti
 import br.com.zup.orangetalents.commons.exceptions.ClienteNotFoundViolationException
 import br.com.zup.orangetalents.commons.exceptions.UnauthorizedViolationException
 import br.com.zup.orangetalents.commons.external.itau.SistemaItau
+import br.com.zup.orangetalents.commons.external.itau.buscaPorCliente
 import br.com.zup.orangetalents.repositories.ChavePixRepository
 import io.grpc.stub.StreamObserver
 import io.micronaut.http.HttpStatus
@@ -25,10 +26,7 @@ class RemoveChaveEndpoint(
     RemoveChavePixServiceImplBase() {
 
     override fun remove(request: RemoveChavePixRequest, responseObserver: StreamObserver<RemoveChavePixResponse>) {
-        sistemaItau.buscaPorCliente(request.clientId).run {
-            if (this.status.code != HttpStatus.OK.code)
-                throw ClienteNotFoundViolationException()
-        }
+        sistemaItau.buscaPorCliente(request.clientId)
         val chave = (chavePixRepository.findById(UUID.fromString(request.pixId)).takeIf {
             it.isPresent
         } ?: throw ChaveNotFoundViolationException()).get()
