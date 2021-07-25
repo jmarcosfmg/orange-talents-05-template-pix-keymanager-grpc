@@ -20,7 +20,7 @@ class ChavePix(
     @field:NotNull @field:Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(11)") val tipoConta: TipoConta,
     @field:NotBlank @field:Size(max = 70) var chave: String,
-    @field:FutureOrPresent val criadaEm : LocalDateTime? = null
+    @field:FutureOrPresent val criadaEm : LocalDateTime = LocalDateTime.now()
 ) {
 
     @Id

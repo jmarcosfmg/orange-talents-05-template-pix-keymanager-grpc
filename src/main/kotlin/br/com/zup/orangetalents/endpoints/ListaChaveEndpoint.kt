@@ -8,6 +8,7 @@ import br.com.zup.orangetalents.model.ChavePix
 import br.com.zup.orangetalents.repositories.ChavePixRepository
 import com.google.protobuf.Timestamp
 import io.grpc.stub.StreamObserver
+import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -31,7 +32,12 @@ class ListaChaveEndpoint(
             .setId(this.id.toString())
             .setTipoChave(this.tipoChave.toTipoGrpc())
             .setTipoConta(this.tipoConta.toTipoGrpc())
-            .setCriadaEm(Timestamp.newBuilder().setNanos(this.criadaEm?.nano?: 0).setSeconds((this.criadaEm?.second?:0).toLong()).build())
-            .build()
+            .setCriadaEm(this.criadaEm.let {
+                val createdAt = it.atZone(ZoneId.of("UTC")).toInstant()
+                Timestamp.newBuilder()
+                    .setSeconds(createdAt.epochSecond)
+                    .setNanos(createdAt.nano)
+                    .build()
+            }).build()
     }
 }
