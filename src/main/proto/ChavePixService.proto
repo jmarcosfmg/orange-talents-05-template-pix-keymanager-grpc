@@ -31,10 +31,11 @@ enum TipoContaGrpc {
 }
 
 enum TipoChaveGrpc {
-  ALEATORIA = 0;
-  CPF = 1;
-  CELULAR = 2;
-  EMAIL = 3;
+  TIPOCHAVEDESCONHECIDA = 0;
+  ALEATORIA = 1;
+  CPF = 2;
+  CELULAR = 3;
+  EMAIL = 4;
 }
 
 message ChavePixRequest{

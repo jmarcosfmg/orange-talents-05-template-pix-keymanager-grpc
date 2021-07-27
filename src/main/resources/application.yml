@@ -5,8 +5,8 @@ datasources:
   default:
     url: 'jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/pixservice?useTimezone=true&serverTimezone=UTC'
     driverClassName: com.mysql.cj.jdbc.Driver
-    username: root
-    password: 'Adm!n1str@d0r'
+    username: '${MYSQL_USERNAME:root}'
+    password: '${MYSQL_PASSWORD:Adm!n1str@d0r}'
     dialect: MYSQL
 
 jpa.default.properties.hibernate.hbm2ddl.auto: update
