@@ -20,5 +20,5 @@ jpa.default.properties.hibernate.show_swl: true
 jpa.default.properties.hibernate.format_sql: true
 
 sistemaExternos:
-  contasItau: ${ITAU_HOST:`http://localhost:9091/api/v1/clientes`}
-  bcb: ${BCB_HOST:`http://localhost:8082/api/v1/pix/keys`}
+  contasItau: ${ITAU_URL:`http://localhost:9091/api/v1/clientes`}
+  bcb: ${BCB_URL:`http://localhost:8082/api/v1/pix/keys`}
